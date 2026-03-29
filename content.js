@@ -1,6 +1,8 @@
 const DEFAULT_SETTINGS = {
   enabled: true,
   removePromoted: true,
+  removePuzzles: true,
+  removeAddToFeed: true,
 }
 
 let settings = { ...DEFAULT_SETTINGS }
@@ -33,6 +35,46 @@ function hasText(el, terms) {
   return terms.some((t) => text.includes(t))
 }
 
+// Encontra o card container do widget lateral via closest com a classe do card
+// LinkedIn usa _9cbcfbdd como classe do container de cada widget no painel lateral
+function findSidebarWidget(textNode) {
+  const p = textNode.parentElement
+  if (!p) return null
+  return p.closest('[class~="_9cbcfbdd"]')
+}
+
+function cleanSidebarText(text) {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      return node.textContent.trim() === text
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP
+    },
+  })
+
+  const targets = []
+  let node
+  while ((node = walker.nextNode())) {
+    targets.push(node)
+  }
+
+  for (const textNode of targets) {
+    const widget = findSidebarWidget(textNode)
+    if (widget) removeEl(widget)
+  }
+}
+
+function cleanPuzzles() {
+  if (!settings.removePuzzles) return
+  // LinkedIn usa aspas tipográficas U+2019 em vez de apóstrofo ASCII
+  cleanSidebarText('Today\u2019s puzzles')
+}
+
+function cleanAddToFeed() {
+  if (!settings.removeAddToFeed) return
+  cleanSidebarText('Add to your feed')
+}
+
 function cleanPromoted() {
   if (!settings.removePromoted) return
 
@@ -61,6 +103,8 @@ function cleanPromoted() {
 function cleanFeed() {
   if (!settings.enabled) return
   cleanPromoted()
+  cleanPuzzles()
+  cleanAddToFeed()
 }
 
 let observer = null
