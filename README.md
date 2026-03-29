@@ -15,16 +15,11 @@ Extensão para Chrome/Firefox que remove ruído do feed do LinkedIn.
 
 ## Instalação
 
-1. Acesse `chrome://extensions/` (ou `edge://extensions/`)
-2. Ative o **Modo do desenvolvedor**
-3. Clique em **Carregar sem compactação**
-4. Selecione a pasta do projeto
+1. Baixe o arquivo em "Releases" ou Baixe/Clone o repositório.
+3. Se estiver em .zip, extraia os arquivos primeiro.
+3. Acesse `chrome://extensions/` (ou `edge://extensions/`)
+4. Ative o **Modo do desenvolvedor**
+5. Clique em **Carregar sem compactação**
+6. Selecione a pasta do projeto
+7. Abra o linkedin
 
-## Estrutura
-
-```
-manifest.json   # Configuração da extensão (MV3)
-content.js      # Script injetado no linkedin.com
-popup.html/js   # Interface do toggle
-icons/          # Ícones da extensão
-```
