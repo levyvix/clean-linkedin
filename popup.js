@@ -1,9 +1,10 @@
-const DEFAULT_SETTINGS = { enabled: true, removePromoted: true, removePuzzles: true, removeAddToFeed: true }
+const DEFAULT_SETTINGS = { enabled: true, removePromoted: true, removePuzzles: true, removeAddToFeed: true, autoExpandPosts: false }
 
 chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {
   document.getElementById('enabled').checked = settings.enabled
   document.getElementById('removePuzzles').checked = settings.removePuzzles
   document.getElementById('removeAddToFeed').checked = settings.removeAddToFeed
+  document.getElementById('autoExpandPosts').checked = settings.autoExpandPosts
 })
 
 document.getElementById('enabled').addEventListener('change', (e) => {
@@ -16,4 +17,8 @@ document.getElementById('removePuzzles').addEventListener('change', (e) => {
 
 document.getElementById('removeAddToFeed').addEventListener('change', (e) => {
   chrome.storage.sync.set({ removeAddToFeed: e.target.checked })
+})
+
+document.getElementById('autoExpandPosts').addEventListener('change', (e) => {
+  chrome.storage.sync.set({ autoExpandPosts: e.target.checked })
 })

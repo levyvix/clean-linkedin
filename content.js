@@ -3,6 +3,7 @@ const DEFAULT_SETTINGS = {
   removePromoted: true,
   removePuzzles: true,
   removeAddToFeed: true,
+  autoExpandPosts: false,
 }
 
 let settings = { ...DEFAULT_SETTINGS }
@@ -10,6 +11,7 @@ let settings = { ...DEFAULT_SETTINGS }
 const PROMOTED_TERMS = ['Promoted', 'Patrocinado', 'Sponsorisé', 'Gesponsert', 'Promovido']
 
 const removed = new WeakSet()
+const expanded = new WeakSet()
 
 function removeEl(el) {
   if (!el || removed.has(el)) return
@@ -100,11 +102,46 @@ function cleanPromoted() {
   }
 }
 
+let expandObserver = null
+
+function observeExpandButton(btn) {
+  if (expanded.has(btn)) return
+  expandObserver.observe(btn)
+}
+
+function expandPosts() {
+  if (!settings.autoExpandPosts) return
+  const buttons = document.querySelectorAll('button[data-testid="expandable-text-button"]')
+  for (const btn of buttons) {
+    observeExpandButton(btn)
+  }
+}
+
+function startExpandObserver() {
+  if (expandObserver) return
+  expandObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue
+      const btn = entry.target
+      expandObserver.unobserve(btn)
+      if (expanded.has(btn)) continue
+      expanded.add(btn)
+      btn.click()
+    }
+  }, { threshold: 0.1 })
+}
+
+function stopExpandObserver() {
+  expandObserver?.disconnect()
+  expandObserver = null
+}
+
 function cleanFeed() {
   if (!settings.enabled) return
   cleanPromoted()
   cleanPuzzles()
   cleanAddToFeed()
+  expandPosts()
 }
 
 let observer = null
@@ -117,6 +154,7 @@ function scheduleClean() {
 
 function startObserver() {
   if (observer) return
+  startExpandObserver()
   observer = new MutationObserver(scheduleClean)
   observer.observe(document.body, { childList: true, subtree: true })
   cleanFeed()
@@ -126,6 +164,7 @@ function stopObserver() {
   observer?.disconnect()
   observer = null
   clearTimeout(debounceTimer)
+  stopExpandObserver()
 }
 
 function applySettings(newSettings) {
